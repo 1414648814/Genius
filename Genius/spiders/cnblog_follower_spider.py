@@ -10,9 +10,9 @@ from scrapy.linkextractors import LinkExtractor as extractor
 from Genius.settings import CNBOLG_COOKIE, CNBLOG_USER_FOLLOWER_HEADERS, CNBLOG_USER_FOLLOWER_URL, CNBLOG_USER_HOME_URL
 from Genius.utils.select_result import list_first_item, strip_null, deduplication, clean_url
 
-class GECnBlogFollowerPostSpider(CrawlSpider):
+class GECnBlogFollowerSpider(CrawlSpider):
     #定义爬虫的名称
-    name = "GECnBlogFollowerPostSpider"
+    name = "GECnBlogFollowerSpider"
     #定义允许抓取的域名,如果不是在此列表的域名则放弃抓取
     allowed_domains = ["cnblogs.com"]
     users = []

@@ -9,16 +9,31 @@ import scrapy
 from scrapy import Item, Field
 
 
-# 博客园文章
+# 博客园主界面文章
 class GECnMainBlogPost(Item):
+    post_id = Field()
     title = Field()  # 文章名称
     post_link = Field()  # 文章连接
     username = Field()  # 用户名字
     user_link = Field()  # 用户链接
     brief = Field()  # 文章简介
-    body = Field()  # 文章具体
     time = Field()  # 发布时间
     recommend_num = Field()  # 评论数量
+    view_num = Field()  # 阅读人数
+    comment_num = Field()  # 评论数量
+
+    def detail(self):
+        print("title:" + str(self.title.values()) + "\nauthor" + str(self.username.values()))
+
+
+# 博客园博主文章
+class GECnUserBlogPost(Item):
+    post_id = Field()
+    title = Field()  # 文章名称
+    post_link = Field()  # 文章连接
+    username = Field()  # 用户名字
+    brief = Field()  # 文章简介
+    time = Field()  # 发布时间
     view_num = Field()  # 阅读人数
     comment_num = Field()  # 评论数量
 
@@ -60,6 +75,7 @@ class GECnBlogUser(Item):
 
 # 博客园用户动态
 class GECnBlogUserActivity(Item):
+    activity_id = Field()
     name = Field()
     type = Field()
     event = Field()
@@ -67,7 +83,24 @@ class GECnBlogUserActivity(Item):
     time = Field()
 
     def detail(self):
-        print('name')
+        print('name:' + str(self.name.values()) + '\nevent' + str(self.event.values()))
+
+
+# 博客园用户为解决的提问
+class GECnBlogQuestion(Item):
+    question_id = Field()
+    title = Field()
+    title_link = Field()
+    desc = Field()
+    score = Field()
+    username = Field()
+    view_num = Field()
+    reply_num = Field()
+    time = Field()
+    tag = Field()  # 以字符串中间|进行存储
+
+    def detail(self):
+        print('username' + str(self.username.values()) + "\n" + str(self.title.values()))
 
 
 # 博客园主页新闻文章

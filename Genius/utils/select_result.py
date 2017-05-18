@@ -8,6 +8,8 @@ from urllib.parse import urljoin,urlparse
 NULL = [None,'null']
 
 list_first_item = lambda x:x[0] if x else None
+list_first_str = lambda x:x[0].strip() if x else None
+list_first_int = lambda x:int(x[0]) if x else None
 
 def strip_null(arg,null=None):
     """

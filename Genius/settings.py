@@ -215,14 +215,18 @@ CNBLOG_USER_FOLLOWER_HEADERS = {
     'X-Requested-With': 'XMLHttpRequest',
 }
 
-CNBLOG_USER_URL = "http://www.cnblogs.com/George1994"
+CNBLOG_USER_URL = 'http://www.cnblogs.com/George1994'
 
-CNBLOG_USER_FOLLOWER_URL = "https://home.cnblogs.com/u/George1994/followers"
+CNBLOG_USER_FOLLOWER_URL = 'https://home.cnblogs.com/u/George1994/followers'
 
-CNBLOG_USER_HOME_URL = "https://home.cnblogs.com"
+# 博客园博主信息界面
+CNBLOG_USER_HOME_URL = 'https://home.cnblogs.com'
 
-# 积分排名前3000名的博主
-CNBLOG_POPULAR_URL = "http://www.cnblogs.com/AllBloggers.aspx"
+# 博客园积分排名前3000名的博主
+CNBLOG_POPULAR_URL = 'http://www.cnblogs.com/AllBloggers.aspx'
+
+# 博客园博问界面
+CNBLOG_QUESTION_URL = 'https://q.cnblogs.com'
 
 SPLASH_URL = 'http://192.168.99.100:8050'
 

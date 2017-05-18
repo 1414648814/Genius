@@ -16,13 +16,10 @@ class GECnBlogMainPostSpider(CrawlSpider):
     start_urls = [
         'http://www.cnblogs.com'
     ]
-    posts = []
-    current_page = 1
 
     def parse(self, response):
         self.log('Hi, this is an item page! %s' % response.url)
         selector = Selector(response)
-        self.current_page += 1
         for subselector in selector.xpath('//div[@class="post_item"]'):
             post = GECnMainBlogPost()
             post["recommend_num"] = list_first_item(subselector.css('span.diggnum').xpath('text()').extract())
@@ -38,12 +35,11 @@ class GECnBlogMainPostSpider(CrawlSpider):
             post["username"] = list_first_item(footer.css('a.lightblue').xpath('text()').extract())
             post["user_link"] = list_first_item(footer.css('a.lightblue').xpath('@href').extract())
             post["time"] = footer.xpath('text()').extract()[1].strip()[4:]
-            post["comment_num"] = list_first_item(footer.css('span.article_comment a').xpath('text()').extract()).strip()[3:-1]
-            post["view_num"] = list_first_item(footer.css('span.article_view a').xpath('text()').extract()).strip()[3:-1]
+            post["comment_num"] = int(list_first_item(footer.css('span.article_comment a').xpath('text()').extract()).strip()[3:-1])
+            post["view_num"] = int(list_first_item(footer.css('span.article_view a').xpath('text()').extract()).strip()[3:-1])
             # if post["post_link"]:
             #     yield Request(url=post["post_link"], callback=self.parse_detail)
-            self.posts.append(post)
-            print(post["title"])
+            yield post
 
         page_selector = selector.xpath('//div[@id="pager_bottom"]/div[@id="paging_block"]/div[@class="pager"]')
         next_page_href = str(page_selector.xpath('a/@href').extract()[-1].split('/')[-1])
@@ -56,6 +52,7 @@ class GECnBlogMainPostSpider(CrawlSpider):
             yield Request(url=next_link, callback=self.parse, cookies=CNBOLG_COOKIE, headers=CNBLOG_MAIN_POST_HEADERS,
                           body=json.dumps(getPageList(CNBLOG_MAIN_POST_PAYLOAD, next_page_href)))
 
+    # 获取文章具体的内容，但是没什么必要
     def parse_detail(self, response):
         response_selector = Selector(response)
-        # yield list_first_item(response_selector.xpath(u'//div[@id="cnblogs_post_body"]').extract())
+        yield list_first_item(response_selector.xpath(u'//div[@id="cnblogs_post_body"]').extract())

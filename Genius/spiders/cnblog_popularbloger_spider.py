@@ -4,7 +4,7 @@ from scrapy.selector import Selector
 from scrapy.http import Request, FormRequest
 from Genius.utils.select_result import list_first_item, strip_null, deduplication, clean_url, getPageList
 from Genius.settings import CNBLOG_POPULAR_URL, CNBLOG_MAIN_POST_HEADERS, CNBOLG_COOKIE, CNBLOG_USER_HOME_URL
-from Genius.items import GECnBlogUser, GECnBlogUserActivity
+from Genius.items import GECnBlogUser, GECnBlogUserActivity, GECnUserBlogPost
 
 
 class GECnBlogPopularUserSpider(CrawlSpider):
@@ -18,28 +18,52 @@ class GECnBlogPopularUserSpider(CrawlSpider):
     ]
 
     def parse(self, response):
-        selector = Selector(response).xpath('//td')
-        user = GECnBlogUser()
-        for index, subselector in enumerate(selector):
-            ranking = list_first_item(subselector.xpath("string(//small[1]/text())").extract()).strip()[:-1]
-            content = list_first_item(subselector.xpath("string(//small[2]/text())").extract()).strip()[1:-1].split(',')
+        selector = Selector(response).css('td')
+        for i, subselector in enumerate(selector):
+            if i == 0:
+                continue
+            user = GECnBlogUser()
+            ranking = list_first_item(subselector.xpath('small[1]/text()').extract()).strip()[:-1]
+            content = list_first_item(subselector.xpath('small[2]/text()').extract()).strip()[1:-1].split(',')
             post_num, last_post_time, score = content[0].strip(), content[1].strip(), content[2].strip()
-            link = list_first_item(subselector.xpath("string(//a[1]/@href)").extract()).strip()
-            name = list_first_item(subselector.xpath("string(//a[1]/text())").extract()).strip()
-            rss_url = list_first_item(subselector.xpath("string(//a[2]/@href)").extract()).strip()
-            user['name'], user['link'], user['ranking'], user['score'], user['rss_url'] = name, link, ranking, score, rss_url
-            user['post_num'], user['last_post_time'] = post_num, last_post_time
-            if link is not None:
+            link = list_first_item(subselector.xpath("string(a[1]/@href)").extract()).strip()
+            name = list_first_item(subselector.xpath("string(a[1]/text())").extract()).strip()
+            rss_url = list_first_item(subselector.xpath("string(a[2]/@href)").extract()).strip()
+            user['name'], user['link'], user['ranking'], user['score'], user['rss_url'] = name, link, int(ranking), int(score), rss_url
+            user['post_num'], user['last_post_time'] = int(post_num), int(last_post_time)
+            yield user
+            if link is not '':
                 yield Request(url=link, callback=self.parse_user, headers=CNBLOG_MAIN_POST_HEADERS)
+            if link.split('/')[-2] != '':
+                next_link = (link.split('/')[-2]).encode(response.encoding)
+                detail_url = clean_url(CNBLOG_USER_HOME_URL + '/u/', next_link, response.encoding)
+                yield Request(url=detail_url, callback=self.parse_user_detail, headers=CNBLOG_MAIN_POST_HEADERS,
+                              cookies=CNBOLG_COOKIE)
         # test
-        # detail_url = 'https://home.cnblogs.com/u/huangxincheng'
-        # yield Request(url=detail_url, callback=self.parse_user_detail, headers=CNBLOG_MAIN_POST_HEADERS, cookies=CNBOLG_COOKIE)
+        # detail_url = 'http://www.cnblogs.com/huangxincheng/'
+        # yield Request(url=detail_url, callback=self.parse_user, headers=CNBLOG_MAIN_POST_HEADERS, cookies=CNBOLG_COOKIE)
 
     # 爬取用户博文信息
     def parse_user(self, response):
-        next_link = (response.url.split('/')[-2]).encode(response.encoding)
-        detail_url = clean_url('https://home.cnblogs.com/u/', next_link, response.encoding)
-        yield Request(url=detail_url, callback=self.parse_user_detail, headers=CNBLOG_MAIN_POST_HEADERS, cookies=CNBOLG_COOKIE)
+        selector = Selector(response)
+        post_selector = selector.xpath('//div[@class="forFlow"]').css('div')
+        for i, subselector in enumerate(post_selector):
+            if i == 0:
+                continue
+            post = GECnUserBlogPost()
+            title = list_first_item(subselector.xpath('div[@class="postTitle"]/a/text()').extract()).strip()
+            post_link = list_first_item(subselector.xpath('div[@class="postTitle"]/a/@href').extract()).strip()
+            desc = list_first_item(subselector.xpath('div[@class="postCon"]/div/text()').extract()).strip()[:-3]
+            foot = list_first_item(subselector.xpath('div[@class="postDesc"]/text()').extract()).strip().split(' ')
+            post['title'], post['post_link'], post['brief'] = title, post_link, desc
+            post['username'], post['time'], post['view_num'], post['comment_num'] \
+                = foot[4], foot[2]+' ' + foot[3], foot[5].strip()[3:-1], foot[6].strip()[3:-1]
+            yield post
+
+        # next_selector = list_first_item(selector.xpath('//*[@id="nav_next_page"]/a').extract())
+        # if next_selector is not None:
+        #     next_href = list_first_item(next_selector.xpath('@href').extract()).strip()
+        #     yield Request(url=next_href, callback=self.parse_user_detail, headers=CNBLOG_MAIN_POST_HEADERS)
 
     # 爬取用户具体信息
     def parse_user_detail(self, response):
@@ -99,7 +123,6 @@ class GECnBlogPopularUserSpider(CrawlSpider):
             elif key == '出生日期':
                 birthday = list_first_item(subselector.xpath('text()').extract()).strip()
                 user['birthday'] = birthday
-
         yield user
         next_link = (user['link'].split('/')[-2] + "/feed/1.html").encode(response.encoding)
         activity_url = clean_url(response.url, next_link, response.encoding)
@@ -122,7 +145,7 @@ class GECnBlogPopularUserSpider(CrawlSpider):
                 desc = list_first_item(subselector.xpath('div/div[@class="feed_desc"]/text()').extract()).strip()
                 activity["desc"] = desc
             else:
-                activity['type'], activity['event'], activity['time'], activity['desc'] = "话题", event, event, event
+                activity['type'], activity['event'], activity['time'], activity['desc'] = "话题", event, type, event
             yield activity
 
         next_selector = selector.xpath('//div[@class="block_arrow"]/a')
