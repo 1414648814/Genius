@@ -6,7 +6,6 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import pymongo, codecs, json
-from scrapy.exceptions import DropItem
 from pymongo import MongoClient
 from .settings import SINGLE_MONGODB_SERVER, SINGLE_MONGODB_PORT, SINGLE_MONGODB_DB
 
@@ -32,9 +31,11 @@ class JsonWriterPipeline(object):
                 line = json.dumps(dict(item), ensure_ascii=False) + "\n"
                 self.user_detail_file.write(line)
         elif spider.name == 'GECnBlogMainPostSpider':
-            self.main_post_file.close()
+            line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+            self.main_post_file.write(line)
         elif spider.name == 'GECnBlogQuestionSpider':
-            self.question_file.close()
+            line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+            self.question_file.write(line)
         return item
 
     def spider_closed(self, spider):
@@ -48,7 +49,7 @@ class JsonWriterPipeline(object):
             self.question_file.close()
 
 
-class GECnBlog(object):
+class GECnBlogPipeline(object):
     def __init__(self):
         try:
             self.client = MongoClient(SINGLE_MONGODB_SERVER, SINGLE_MONGODB_PORT)
@@ -161,20 +162,16 @@ class GECnBlogQuestionPipeline(object):
     @staticmethod
     def process_item(db, item, spider):
         question_detail = {
-
+            'title': item.get('title'),
+            'title_link': item.get('title_link'),
+            'desc': item.get('desc'),
+            'score': item.get('score'),
+            'username': item.get('username'),
+            'view_num': item.get('view_num'),
+            'reply_num': item.get('reply_num'),
+            'time': item.get('time'),
+            'tag': item.get('tag')
         }
         result = db['questions'].insert(question_detail)
         item['question_id'] = str(result)
         return item
-
-
-# 去重问题暂时放一放
-class GEDuplicatePipeline(object):
-    def __init__(self):
-        self.ids_seen = set()  # 这里可能会有问题
-
-    def process_time(self, item, spider):
-        if item['user_id'] in self.ids_seen:
-            raise DropItem('Duplicate item name%s'%item)
-        else:
-            self.ids_seen.add(item)

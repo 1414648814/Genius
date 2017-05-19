@@ -7,15 +7,13 @@ from scrapy.selector import Selector
 from scrapy.http import Request
 from Genius.utils.select_result import list_first_str, list_first_int, list_first_item, strip_null, deduplication, clean_url
 from Genius.items import GECnBlogQuestion
-from Genius.settings import CNBOLG_COOKIE, CNBLOG_MAIN_POST_HEADERS, CNBLOG_QUESTION_URL
+from Genius.settings import CNBLOG_QUESTION_URL
 
 
 class GECnBlogQuestionSpider(CrawlSpider):
     name = "GECnBlogQuestionSpider"
     allowed_domains = ["cnblogs.com"]
-    start_urls = [
-        'https://q.cnblogs.com/list/unsolved?page=1'
-    ]
+    start_urls = ['https://q.cnblogs.com/list/unsolved?page=1']
 
     def parse(self, response):
         self.log('Hi, this is an item page! %s' % response.url)
@@ -34,7 +32,7 @@ class GECnBlogQuestionSpider(CrawlSpider):
             question["desc"] = list_first_str(item_selector.xpath('div[@class="news_summary"]/text()').extract())
             item_footer_selector = item_selector.xpath('div[@class="news_footer"]')
             question["username"] = list_first_str(item_footer_selector.xpath('div[2]/a[2]/text()').extract())
-            question["view_num"] = list_first_int(item_footer_selector.xpath('div[2]/text()').extract())[3:-1]
+            question["view_num"] = list_first_int(item_footer_selector.xpath('div[2]/text()').extract()[1].strip()[3:-1])
             question["time"] = list_first_str(item_footer_selector.xpath('div[2]/span/text()').extract())
             tag_str = ''
             for i, tag_selector in enumerate(item_footer_selector.xpath('div[1]/a')):
@@ -43,8 +41,8 @@ class GECnBlogQuestionSpider(CrawlSpider):
             yield question
 
         page_selector = selector.xpath('//div[@id="pager"]')
-        next_page_href = str(page_selector.xpath('a/@href').extract()[-1].split('/')[-1])
-        next_page_text = page_selector.xpath('a/text()').extract()[-1][:-2]
-
+        next_page_href = page_selector.xpath('a/@href').extract()[-1].strip()
+        next_page_text = page_selector.xpath('a/text()').extract()[-1].strip()[:-2]
         if next_page_text == 'Next':
-            yield Request(url=CNBLOG_QUESTION_URL + next_page_href, callback=self.parse, cookies=CNBOLG_COOKIE, headers=CNBLOG_MAIN_POST_HEADERS)
+            next_url = CNBLOG_QUESTION_URL + next_page_href
+            yield Request(url=next_url, callback=self.parse)
