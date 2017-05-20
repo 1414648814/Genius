@@ -5,7 +5,7 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 
-import scrapy
+import scrapy, logging
 from scrapy import Item, Field
 
 
@@ -41,7 +41,7 @@ class GECnUserBlogPost(Item):
     mongodb_id = Field()  # mongodb
 
     def detail(self):
-        print("title:" + str(self.title.values()) + "\nauthor" + str(self.username.values()))
+        logging.info("title:" + str(self.title.values()) + "\nauthor" + str(self.username.values()))
 
 
 # 博客园用户数据
@@ -76,7 +76,7 @@ class GECnBlogUser(Item):
     mongodb_id = Field()  # mongodb
 
     def detail(self):
-        print('name:' + str(self.name.values()) + '\nlink' + str(self.link.values()))
+        logging.info('name:' + str(self.name.values()) + '\nlink' + str(self.link.values()))
 
 
 # 博客园用户动态
@@ -91,7 +91,7 @@ class GECnBlogUserActivity(Item):
     mongodb_id = Field()  # mongodb
 
     def detail(self):
-        print('name:' + str(self.name.values()) + '\nevent' + str(self.event.values()))
+        logging.info('name:' + str(self.name.values()) + '\nevent' + str(self.event.values()))
 
 
 # 博客园用户为解决的提问
@@ -109,7 +109,7 @@ class GECnBlogQuestion(Item):
     mongodb_id = Field()  # mongodb
 
     def detail(self):
-        print('username' + str(self.username.values()) + "\n" + str(self.title.values()))
+        logging.info('username' + str(self.username.values()) + "\n" + str(self.title.values()))
 
 
 # 博客园主页新闻文章

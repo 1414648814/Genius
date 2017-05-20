@@ -8,11 +8,15 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+import os
 
 BOT_NAME = 'Genius'
 
 SPIDER_MODULES = ['Genius.spiders']
 NEWSPIDER_MODULE = 'Genius.spiders'
+
+# Project dir
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'Genius (+http://www.yourdomain.com)'
@@ -136,7 +140,10 @@ AUTOTHROTTLE_TARGET_CONCURRENCY = 1.5
 # 定制图片
 IMAGES_MIN_WIDTH = 50
 IMAGES_MIN_HEIGHT = 50
-IMAGES_STORE = '/Users/wangdading/Documents/GitProject/Genius/Genius/cover_imgae'
+IMAGES_STORE = os.path.join(PROJECT_DIR,'cover_imgae')
+
+# 打印文件
+LOG_FILE = 'logging/scrapy.log'
 
 REDIRECT_ENABLED = False  # 禁止过重定向
 

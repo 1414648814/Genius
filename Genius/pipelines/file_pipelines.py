@@ -1,4 +1,4 @@
-import codecs, json, scrapy, pymongo, os
+import codecs, json, scrapy, pymongo, os, logging
 from scrapy.http import Request
 from scrapy.exceptions import DropItem
 from scrapy.pipelines.images import ImagesPipeline
@@ -6,6 +6,7 @@ from ..utils.select_result import list_first_item, list_first_str
 from pymongo import MongoClient
 from Genius.settings import SINGLE_MONGODB_SERVER, SINGLE_MONGODB_PORT, SINGLE_MONGODB_DB
 from Genius.utils.select_result import get_linkmd5id
+
 
 # 将爬虫内容添加到json文件中，这里也要可以进行区分，不用把所有的数据都存进一个json文件
 class JsonWriterPipeline(object):
@@ -60,6 +61,7 @@ class GECNBLOGUserCoverImage(ImagesPipeline):
     # 可能会有多个item
     def get_media_requests(self, item, info):
         if item is None:
+            logging.warning('GECNBLOGUserCoverImage: item is None')
             return
         if 'icon' in item.keys():
             yield Request(item['icon'])
@@ -82,5 +84,6 @@ class GECNBLOGUserCoverImage(ImagesPipeline):
                     {'$set': {'icon_path': item['icon_path']}},
                     True
                 )
+                logging.info('GECNBLOGUserCoverImage: item is updated successfully')
                 # 可以将图片的路径加入到数据库中
                 return item

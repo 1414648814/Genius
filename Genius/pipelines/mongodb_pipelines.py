@@ -5,7 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-import pymongo
+import pymongo, logging
 from pymongo import MongoClient
 from Genius.settings import SINGLE_MONGODB_SERVER, SINGLE_MONGODB_PORT, SINGLE_MONGODB_DB
 from Genius.utils.select_result import get_linkmd5id
@@ -59,6 +59,7 @@ class GECnBlogUserPipeline(object):
             }
             result = db['activities'].insert(activity_detail)
             item['mongodb_id'] = str(result)
+            logging.info('GECnBlogUserPipeline: item is added successfully')
             return item
         elif 'post_id' in item.keys():
             post_detail = {
@@ -74,6 +75,7 @@ class GECnBlogUserPipeline(object):
             }
             result = db['user_post'].insert(post_detail)
             item['mongodb_id'] = str(result)
+            logging.info('GECnBlogUserPipeline: item is added successfully')
             return item
         elif 'user_id' in item.keys():  # 默认是用户信息
             linkmd5id = get_linkmd5id(item['link'])
@@ -109,14 +111,16 @@ class GECnBlogUserPipeline(object):
                 }
                 result = db['users'].insert_one(user_detail)
                 item['mongodb_id'] = str(result)  # 并不需要将其存到数据库中
+                logging.info('GECnBlogUserPipeline: item is added successfully')
                 return item
             else:
                 for key in item.keys():
-                    if item[key] != user[key] and item[key] != 0 and item[key] != '':
+                    if item[key] != user[key] and item[key] != 0 and item[key] != '' and key != 'mongodb_id':
                         db['users'].update_one(
                             {"user_id": linkmd5id},
                             {'$set': {key: item[key]}}
                         )
+                logging.info('GECnBlogUserPipeline: item is updated successfully')
                 return db['users'].find_one({"user_id": linkmd5id})
 
 
@@ -136,6 +140,7 @@ class GECnBlogMainPostPipeline(object):
         }
         result = db['main_post'].insert(post_detail)
         item['mongodb_id'] = str(result)
+        logging.info('GECnBlogMainPostPipeline: item is add successfully')
         return item
 
 
@@ -155,4 +160,5 @@ class GECnBlogQuestionPipeline(object):
         }
         result = db['questions'].insert(question_detail)
         item['mongodb_id'] = str(result)
+        logging.info('GECnBlogQuestionPipeline: item is add successfully')
         return item
