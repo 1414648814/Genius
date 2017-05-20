@@ -21,6 +21,7 @@ class GECnMainBlogPost(Item):
     recommend_num = Field()  # 评论数量
     view_num = Field()  # 阅读人数
     comment_num = Field()  # 评论数量
+    mongodb_id = Field()  # mongodb
 
     def detail(self):
         print("title:" + str(self.title.values()) + "\nauthor" + str(self.username.values()))
@@ -32,10 +33,12 @@ class GECnUserBlogPost(Item):
     title = Field()  # 文章名称
     post_link = Field()  # 文章连接
     username = Field()  # 用户名字
+    user_url = Field()  # 博主主页
     brief = Field()  # 文章简介
     time = Field()  # 发布时间
     view_num = Field()  # 阅读人数
     comment_num = Field()  # 评论数量
+    mongodb_id = Field()  # mongodb
 
     def detail(self):
         print("title:" + str(self.title.values()) + "\nauthor" + str(self.username.values()))
@@ -43,10 +46,12 @@ class GECnUserBlogPost(Item):
 
 # 博客园用户数据
 class GECnBlogUser(Item):
-    user_id = Field()  # 用户id，用来去重
-    name = Field()  # 姓名
+    user_id = Field()  # 用户id，用来区分
+    nickname = Field()  # 昵称
+    name = Field()  # 个人姓名，用户选填
     link = Field()  # 博客网址
     icon = Field()  # 头像
+    icon_path = Field()  # 头像存放位置
     sex = Field()  # 性别
     birthday = Field()  # 出生日期
     ranking = Field()  # 排名
@@ -68,6 +73,7 @@ class GECnBlogUser(Item):
     use_time = Field()  # 园龄
     follow_num = Field()  # 关注人数
     fans_num = Field()  # 粉丝人数
+    mongodb_id = Field()  # mongodb
 
     def detail(self):
         print('name:' + str(self.name.values()) + '\nlink' + str(self.link.values()))
@@ -79,8 +85,10 @@ class GECnBlogUserActivity(Item):
     name = Field()
     type = Field()
     event = Field()
+    event_url = Field()
     desc = Field()
     time = Field()
+    mongodb_id = Field()  # mongodb
 
     def detail(self):
         print('name:' + str(self.name.values()) + '\nevent' + str(self.event.values()))
@@ -98,6 +106,7 @@ class GECnBlogQuestion(Item):
     reply_num = Field()
     time = Field()
     tag = Field()  # 以字符串中间|进行存储
+    mongodb_id = Field()  # mongodb
 
     def detail(self):
         print('username' + str(self.username.values()) + "\n" + str(self.title.values()))

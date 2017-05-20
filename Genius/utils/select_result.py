@@ -4,6 +4,7 @@
 import types
 from w3lib.html import replace_entities
 from urllib.parse import urljoin,urlparse
+from hashlib import md5
 
 NULL = [None,'null']
 
@@ -63,6 +64,12 @@ clean_url = lambda base_url, u, response_encoding: urljoin(base_url, replace_ent
     remove leading and trailing whitespace and punctuation and entities from the given text.
     then join the base_url and the link that extract
 """
+
+
+#获取url的md5编码
+def get_linkmd5id(link):
+    return md5(link.strip().encode('utf-8')).hexdigest()
+
 
 def getCookie(text):
     result = {}

@@ -18,5 +18,5 @@ from Genius.spiders.cnblog_question_spider import GECnBlogQuestionSpider
 
 process = CrawlerProcess(get_project_settings())
 
-process.crawl(GECnBlogQuestionSpider)
+process.crawl(GECnBlogPopularUserSpider)
 process.start() # the script will block here until the crawling is finished

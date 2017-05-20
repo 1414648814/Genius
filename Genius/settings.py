@@ -21,7 +21,7 @@ NEWSPIDER_MODULE = 'Genius.spiders'
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+# CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
@@ -70,9 +70,10 @@ SPIDER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 # 数字范围在0到1000之间，存进mongodb
 ITEM_PIPELINES = {
-    # 'scrapy_redis.pipelines.RedisPipeline': 200,  # redis保存下item，已经存在的item则丢弃，可以用来查看item
-    'Genius.pipelines.GECnBlogPipeline': 300,
-    'Genius.pipelines.JsonWriterPipeline': 400,
+    'scrapy_redis.pipelines.RedisPipeline': 200,  # redis保存下item，已经存在的item则丢弃，可以用来查看item
+    'Genius.pipelines.mongodb_pipelines.GECnBlogPipeline': 300,
+    'Genius.pipelines.file_pipelines.GECNBLOGUserCoverImage': 400,
+    # 'Genius.pipelines.pipelines.JsonWriterPipeline': 500
 }
 
 # 单mongodb
@@ -91,7 +92,7 @@ SHARED_MONGDB_DB = 'shared_cnblogs'
 
 # 设置一个去重的类，确保爬虫通过redis进行缓存
 # DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
-DUPEFILTER_CLASS = 'scrapy.dupefilter.RFPDupeFilter'
+DUPEFILTER_CLASS = 'scrapy.dupefilters.RFPDupeFilter'
 
 # 不清除Redis队列、这样可以暂停/恢复 爬取
 SCHEDULER_PERSIST = True
@@ -132,6 +133,10 @@ AUTOTHROTTLE_TARGET_CONCURRENCY = 1.5
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
+# 定制图片
+IMAGES_MIN_WIDTH = 50
+IMAGES_MIN_HEIGHT = 50
+IMAGES_STORE = '/Users/wangdading/Documents/GitProject/Genius/Genius/cover_imgae'
 
 REDIRECT_ENABLED = False  # 禁止过重定向
 
