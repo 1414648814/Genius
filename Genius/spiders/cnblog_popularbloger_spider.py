@@ -19,7 +19,6 @@ class GECnBlogPopularUserSpider(CrawlSpider):
     user_urls = []
 
     def parse(self, response):
-        print(response.encoding)
         selector = Selector(response).css('td')
         for i, subselector in enumerate(selector):
             if i == 0:
@@ -52,7 +51,6 @@ class GECnBlogPopularUserSpider(CrawlSpider):
         # test
         # detail_url = 'https://home.cnblogs.com/u/lhb25/'
         # yield Request(url=detail_url, callback=self.parse_user, headers=CNBLOG_MAIN_POST_HEADERS, cookies=CNBOLG_COOKIE)
-
 
     # 爬取用户博文信息
     def parse_user(self, response):
@@ -134,7 +132,7 @@ class GECnBlogPopularUserSpider(CrawlSpider):
             elif key == '出生日期':
                 birthday = list_first_item(subselector.xpath('text()').extract()).strip()
                 user['birthday'] = birthday
-        logging.info('GECnBlogPopularUserSpider: user\'s info %s is crawled successfully', name)
+        logging.info('GECnBlogPopularUserSpider: user\'s info %s is crawled successfully', nickname)
         yield user
 
         # 爬动态信息
